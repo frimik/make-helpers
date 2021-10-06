@@ -1,0 +1,24 @@
+MAKEFILE_MAKEFILE_HELPERS := $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
+LAST_MAKEFILE := $(realpath $(lastword $(MAKEFILE_LIST)))
+LAST_MAKEFILE_DIR := $(dir $(LAST_MAKEFILE))
+
+# Place this file as "Makefile.helpers" in the git root of your project.
+
+MAKE_HELPER_GIT_URL := "https://github.com/frimik/make-helpers.git"
+.PHONY: make_helpers
+make_helpers:
+ifeq (, $(wildcard $(LAST_MAKEFILE_DIR)/.make))
+	git clone $(MAKE_HELPER_GIT_URL) $(LAST_MAKEFILE_DIR)/.make
+else
+	cd $(LAST_MAKEFILE_DIR)/.make && git pull --rebase
+endif
+	@ echo "Make sure you have the newest 'Makefile.helpers' file and"
+	@ echo "now include this in your Makefile, at the very top:"
+	@ echo "# === helpers"
+	@ echo ".DEFAULT_GOAL := all  # or another desired default goal."
+	@ echo "include Makefile.helpers"
+	@ echo "# ==="
+
+ifneq (,$(wildcard $(LAST_MAKEFILE_DIR)/.make/*.mk))
+include $(LAST_MAKEFILE_DIR)/.make/*.mk
+endif
